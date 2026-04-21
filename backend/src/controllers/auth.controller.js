@@ -1,0 +1,114 @@
+import UserModel from "../models/user.model.js"
+import jwt from "jsonwebtoken"
+import sendMail from "../services/nodemailer.js"
+
+async function userRegisterController(req,res,next) {
+    try {
+        const {email,password,userName} = req.body
+
+        const isUser = await UserModel.findOne({email})
+
+        if(isUser){
+            return res.status(422).json({
+                message:"User  already Exist With Eamil",
+                status:"failed"
+            })
+        }
+
+        const user = await UserModel.create({
+            email,password,userName
+        })
+
+        const token = await jwt.sign({userId:user._id},process.env.JWT_SECRET)
+        res.cookie("token",token)
+
+       await sendMail({
+            to:"sabhimanu707@gmail.com",
+            subject:"welcome message.",
+            text:"welcome to our website."
+        })
+
+       return res.status (201).json({
+            message:"user register successfully.",
+            status:"success",
+            user:{
+                _id:user._id,
+                email:user.email,
+                userName:user.userName
+            },
+            token
+
+        })
+    } catch (error) {
+        console.log("user Register failed.")
+        next(error)
+    }
+    
+}
+
+
+
+async function userLoginController(req,res,next) {
+    try {
+        const {email,password} = req.body
+        
+        const user = await UserModel.findOne({email})
+        if(!user) {
+              return res.status(401).json({
+                message:"User  Not Exist .",
+                status:"failed"
+            })
+        }
+
+        const isPassword = await user.comparePassword(password)
+
+        if(!isPassword){
+              return res.status(404).json({
+                message:"User Detals Not valid .",
+                status:"failed"
+            })
+        }
+
+          const token = await jwt.sign({userId:user._id},process.env.JWT_SECRET)
+        res.cookie("token",token)
+
+        return res.status(200).json({
+            message:"User Login successfully.",
+            status:"success",
+            user:{
+                _id:user._id,
+                email:user.email,
+                userName:user.userName
+            },
+            token
+
+        })
+
+    } catch (error) {
+        console.log("Error in login .")
+        next(error)
+        
+    }
+}
+
+
+async function userLogoutController(req,res,next) {
+    try {
+        await res.clearCookie("token")
+        return res.status(200).json({
+            message:'user logout successfully.',
+            statue:"success."
+        })
+    } catch (error) {
+         console.log("Error in Logout .")
+        next(error)
+         
+    }
+    
+}
+
+export default {
+    userRegisterController,
+    userLoginController,
+    userLogoutController
+}
