@@ -1,6 +1,6 @@
 import UserModel from "../models/user.model.js"
 import jwt from "jsonwebtoken"
-import sendMail from "../services/nodemailer.js"
+import emailService from "../utils/mails/emails.js"
 
 async function userRegisterController(req,res,next) {
     try {
@@ -22,10 +22,10 @@ async function userRegisterController(req,res,next) {
         const token = await jwt.sign({userId:user._id},process.env.JWT_SECRET)
         res.cookie("token",token)
 
-       await sendMail({
-            to:"sabhimanu707@gmail.com",
-            subject:"welcome message.",
-            text:"welcome to our website."
+
+    await emailService.sendRegisterEmail({
+            userName:user.userName,
+            email:user.email
         })
 
        return res.status (201).json({
