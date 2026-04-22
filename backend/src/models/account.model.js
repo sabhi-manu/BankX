@@ -1,26 +1,64 @@
 import mongoose from "mongoose"
+import ledgerModel from "./ledger.model"
 
 const accountSchema = new mongoose.Schema({
-    user:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"user",
-        required:[true,"Account must be associated with a user."],
-      
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
+        required: [true, "Account must be associated with a user."],
+
     },
-    status:{
+    status: {
         type: String,
-        enum:["ACTIVE","FROZEN","CLOSED"],
-        default:"ACTIVE"
+        enum: ["ACTIVE", "FROZEN", "CLOSED"],
+        default: "ACTIVE"
     },
-    currency:{
-        type:String,
-        required:[true,"Currency is required for creating an account."],
-        default:"INR"
+    currency: {
+        type: String,
+        required: [true, "Currency is required for creating an account."],
+        default: "INR"
     }
-},{timestamps:true})
+}, { timestamps: true })
 
-accountSchema.index({user:1},{status:1})
+accountSchema.index({ user: 1 }, { status: 1 })
 
-const accountModel = mongoose.model("account",accountSchema)
+accountSchema.methods.getBalance = async function () {
+    const balanceData = await ledgerModel.aggregate([
+        {
+            $match: {
+                account: this._id
+            }
+        },
+        {
+            $group: {
+                _id: null,
+                totalCrdit: {
+                    $sum: {
+                        $cond: [{ $eq: ["$type", "CREDIT"] }, "$ammount", 0]
+                    }
+                },
+
+                totalDebit: {
+                    $sum: {
+                        $cond: [{ $eq: ["$type", "DEBIT"] }, "$ammount", 0]
+                    }
+
+                }
+            }
+        },
+        {
+            $addFields: {
+                balance: {
+                    $subtract: ["$totalCrdit", "$totalDebit"]
+                }
+            }
+        }
+    ])
+
+    if(balanceData.length == 0) return 0
+    return balanceData.balance
+}
+
+const accountModel = mongoose.model("account", accountSchema)
 
 export default accountModel
