@@ -14,11 +14,11 @@ async function createTransaction(req,res) {
 
     const fromUserAccount = await accountModel.findOne({
         _id:fromAccount
-    }) 
+    }).populate("user")
 
     const toUserAccount = await accountModel.findOne({
         _id:toAccount
-    })
+    }).populate("user")
     
     if(!fromUserAccount || !toUserAccount){
         return res.status(400).json({
@@ -95,13 +95,13 @@ async function createTransaction(req,res) {
           session.startTransaction()
 
 
-      transaction = await transactionModel.create([{
+      transaction = (await transactionModel.create([{
         fromAccount,
         toAccount,
         amount,
         status:"PENDING",
         idempotenceKey
-      }],{session})[0];
+      }],{session}))[0];
 
       const forAccountLedger = await ledgerModel.create([{
         account:fromAccount,
@@ -141,12 +141,122 @@ async function createTransaction(req,res) {
         userName:fromUserAccount.userName,
         email:fromUserAccount.email,
         amount,
-        fromAccount:fromUserAccount.accountNumber,
-        toAccount:toUserAccount.accountNumber
+        fromAccount:fromUserAccount.user.userName,
+        toAccount:toUserAccount.user.userName
     })  
 
     return res.status(201).json({
         message:"Transaction completed successfully.",
        transaction:transaction 
     })
+}
+
+
+
+
+async function createInitialFund(req,res,next) {
+
+  const {toAccount,amount,idempotenceKey} = req.body
+  const systemId = req.user._id
+
+
+  // check body details
+  if(!toAccount || !amount || !idempotenceKey){
+    return res.status(400).json({
+      message:"all details are required."
+    })
+  }
+
+  const toUserAccount = await accountModel.findOne({_id:toAccount}).populate("user")
+
+  if(!toUserAccount){
+    return res.status(400).json({
+       message:"invalid account."
+    })
+  }
+
+  const existing = await transactionModel.findOne({ idempotenceKey });
+
+if (existing) {
+  return res.status(200).json({
+    message: "Transaction already processed",
+    transaction: existing
+  });
+}
+
+  if(toUserAccount.status === "FROZEN" || toUserAccount.status === "CLOSED"){
+    return res.status(400).json({
+      message:"Transaction cannot be processed as the account is not active."
+    })
+  } 
+
+  const fromAccount = await accountModel.findOne(
+    {user:systemId}
+  ).populate("user")
+
+  let transaction;
+  let session = await mongoose.startSession()
+
+  try {
+    session.startTransaction()
+
+    transaction = (await transactionModel.create([{
+      fromAccount,
+      toAccount,
+      amount,
+      status:"PENDING",
+      idempotenceKey
+    }],{session}))[0]
+
+    const debitLedger = await ledgerModel.create([{
+      account: fromAccount,
+      amount,
+      type:"DEBIT",
+      transaction:transaction._id
+    }],{session})
+
+    const creditLedger = await ledgerModel.create([{
+      account:toAccount,
+      amount,
+      type:"CREDIT",
+      transaction:transaction._id
+    }],{session})
+
+    await transactionModel.findByIdAndUpdate(
+      transaction._id,
+     { status: "COMPLETE" },
+      {session}
+    )
+
+  await  session.commitTransaction()
+  } catch (error) {
+    console.log("error in fund transfor.")
+    await session.abortTransaction()
+     return res.status(500).json({
+    message: "Transaction failed",
+    error: error.message
+  });
+  }
+  
+  session.endSession()
+
+  await emailService.sendTransactionEmail({
+        userName:toUserAccount.user.userName,
+        email:toUserAccount.user.email,
+        amount,
+        fromAccount:req.user.userName,
+        toAccount:toUserAccount.user.userName
+    })  
+
+    return res.status(201).json({
+        message:"Transaction completed successfully.",
+       transaction:transaction 
+    })
+}
+
+
+
+export default {
+  createTransaction,
+  createInitialFund
 }

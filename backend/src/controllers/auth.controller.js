@@ -1,6 +1,7 @@
 import UserModel from "../models/user.model.js"
 import jwt from "jsonwebtoken"
 import emailService from "../utils/mails/emails.js"
+import tokenBlackListModel from "../models/blackList.model.js"
 
 async function userRegisterController(req,res,next) {
     try {
@@ -94,6 +95,17 @@ async function userLoginController(req,res,next) {
 
 async function userLogoutController(req,res,next) {
     try {
+        const token = req.cookies.token ||  req.headers.authorization?.split(" ")[1]
+
+        if(!token){
+            return res.status(400).json({
+                messsage:"user logged out ."
+            })
+        }
+        await tokenBlackListModel.create({
+            token
+        })
+
         await res.clearCookie("token")
         return res.status(200).json({
             message:'user logout successfully.',

@@ -18,6 +18,12 @@ const userSchema = new mongoose.Schema({
     password:{
         type:String,
         required:[true,"Password required for creating an account."]
+    },
+    systemUser:{
+        type:Boolean,
+        default:false,
+        immutable:true,
+        select:false
     }
 
 },{timestamps:true})
