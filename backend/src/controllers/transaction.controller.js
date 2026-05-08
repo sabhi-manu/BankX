@@ -1,7 +1,7 @@
 import mongoose from "mongoose"
 import accountModel from "../models/account.model.js"
 import transactionModel from "../models/transaction.model.js"
-import ledgerModel from "../models/ledger.model"
+import ledgerModel from "../models/ledger.model.js"
 import emailService from "../utils/mails/emails.js"
 
 async function createTransaction(req,res) {

@@ -4,27 +4,25 @@ const ledgerSchema = new mongoose.Schema({
     account:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'account',
-        requied:[true,"Account requied for ledger."],
+        required:[true,"Account required for ledger."],
         index:true,
         immutable:true
     },
     amount:{
         type:Number,
-        requied:[true,"Amount is requied for ledger entry."],
+        required:[true,"Amount is required for ledger entry."],
         immutable:true,
     },
     type:{
         type:String,
-        enum:{
-            value:["CREDIT","DEBIT"]
-        },
+        enum:["CREDIT","DEBIT"],
         immutable:true,
-        requied:true
+        required:true
     },
     transaction:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"transaction",
-        requied:[true,"Transaction required for Ledger."],
+        required:[true,"Transaction required for Ledger."],
         index:true,
         immutable:true
     }
