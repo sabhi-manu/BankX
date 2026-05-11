@@ -5,6 +5,7 @@ import Card from "../ui/Card";
 import TransferMoneyCard from "../ui/TransferMoneyCard";
 import RecentTransactionsCard from "../ui/RecentTransactionsCard";
 import QuickLinksCard from "../ui/QuickLinksCard";
+import AccountsPage from "../../features/accounts/pages/AccountsPage";
 
 const DashboardLayout = () => {
   return (
@@ -20,7 +21,7 @@ const DashboardLayout = () => {
         <Header />
 
         
-        <main className="flex-1 p-6 overflow-y-auto">
+        {/* <main className="flex-1 p-6 overflow-y-auto">
           
       
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
@@ -48,7 +49,10 @@ const DashboardLayout = () => {
             </div>
           </div>
           
-        </main>
+        </main> */}
+
+          <AccountsPage/>
+
       </div>
     </div>
   );
