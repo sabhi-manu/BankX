@@ -6,6 +6,9 @@ import TransferMoneyCard from "../ui/TransferMoneyCard";
 import RecentTransactionsCard from "../ui/RecentTransactionsCard";
 import QuickLinksCard from "../ui/QuickLinksCard";
 import AccountsPage from "../../features/accounts/pages/AccountsPage";
+import Transactions from "../../features/transactions/pages/TransactionsPage";
+import TransferMoneyPage from "../../features/TransferMoney/page/TransferMoneyPage";
+import ProfilePage from "../../features/profile/page/ProfilePage";
 
 const DashboardLayout = () => {
   return (
@@ -51,7 +54,10 @@ const DashboardLayout = () => {
           
         </main> */}
 
-          <AccountsPage/>
+          {/* <AccountsPage/> */}
+          {/* <Transactions/> */}
+          {/* <TransferMoneyPage/> */}
+          <ProfilePage/>
 
       </div>
     </div>

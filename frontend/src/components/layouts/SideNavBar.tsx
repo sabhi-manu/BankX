@@ -22,7 +22,7 @@ const navItems = [
     icon: "ri-user-3-line",
   },
   {
-    title: "Settings",
+    title: "Logout",
     icon: "ri-settings-3-line",
   },
 ];
