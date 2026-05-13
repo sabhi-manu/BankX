@@ -7,10 +7,3 @@ export function useTransaction (){
         queryFn: transactionApi
     })
 }
-
-// export function useGetTransactions (){
-//     return useQuery({
-//         queryKey:['getTransactions'],
-//         queryFn: getTransactionsApi
-//     })
-// }

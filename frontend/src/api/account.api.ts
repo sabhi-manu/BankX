@@ -10,7 +10,13 @@ export async function accountApi() {
 
 export async function balanceApi(accountId:string) {
     console.log('account id :',accountId)
-    let resp = await axios.post(`/accounts/balance/6a02a832d70dcda53bf6068c`)
+    let resp = await axios.post(`/accounts/balance/${accountId}`)
     console.log('response balance ==>',resp)
+    return resp.data
+}
+
+export async function createAccountApi() {
+    let resp = await axios.post("/accounts")
+    console.log('response create account ==>',resp)
     return resp.data
 }

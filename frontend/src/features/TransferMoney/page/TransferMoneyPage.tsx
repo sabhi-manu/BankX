@@ -1,14 +1,20 @@
 import React, { useState } from "react";
 import { useTransferMoney } from "../hook/useTransferMoney";
 import { v4 as uuidv4 } from "uuid";
+import { useNavigate } from "react-router";
+import { useTransaction } from "../../transactions/hooks/useTransaction";
+import type { TransactionResponse } from "../../../types/Auth.type";
 
 
 const TransferMoneyPage = () => {
   const [to, setTo] = useState("");
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
+  const navigate = useNavigate()
 
   const { mutate, isPending } = useTransferMoney();
+   const { data, isLoading } = useTransaction();
+   console.log( "transactions details ==>", data)
 
   const submitHandler = () => {
     if (!to || !amount) return;
@@ -23,7 +29,7 @@ const TransferMoneyPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 px-5 py-6 overflow-y-scroll">
+    <div className="min-h-screen bg-slate-100 px-5 py-6 overflow-y-scroll ">
 
       {/* Header */}
       <div className="mb-6">
@@ -124,7 +130,7 @@ const TransferMoneyPage = () => {
         </div>
 
         {/* Right Section */}
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-5 mb-15">
 
           {/* Recent Transactions */}
           <div className="bg-white rounded-2xl shadow-lg p-5 max-h-[320px] overflow-y-auto">
@@ -134,15 +140,16 @@ const TransferMoneyPage = () => {
                 Recent Transfers
               </h2>
 
-              <button className="text-blue-500 text-sm font-medium">
+              <button onClick={()=>navigate("/transaction")} className="text-blue-500 text-sm font-medium hover:cursor-pointer">
                 View All
               </button>
             </div>
 
             <div className="space-y-4">
-
-              {/* Item */}
-              <div className="flex items-center justify-between border-b pb-3">
+              {
+                data?.transactions.slice(0,3).map((item:TransactionResponse)=>{
+                  return (
+                     <div key={item._id} className="flex items-center justify-between border-b pb-3">
 
                 <div className="flex items-center gap-3">
 
@@ -156,98 +163,22 @@ const TransferMoneyPage = () => {
                     </p>
 
                     <p className="text-gray-500 text-xs">
-                      XXXX XXXX 1234
+                      XXXX XXXX {item.fromAccount.slice(-4)}
                     </p>
                   </div>
 
                 </div>
 
-                <p className="text-red-500 font-bold text-sm">
-                  - ₹5,000
+                <p className=" font-bold text-sm">
+                   ₹ {item.amount}
                 </p>
 
               </div>
+                  )
 
-              {/* Item */}
-              <div className="flex items-center justify-between border-b pb-3">
-
-                <div className="flex items-center gap-3">
-
-                  <div className="bg-slate-100 rounded-full p-3">
-                    <i className="ri-user-3-line text-lg"></i>
-                  </div>
-
-                  <div>
-                    <p className="font-medium text-sm">
-                      Emma Watson
-                    </p>
-
-                    <p className="text-gray-500 text-xs">
-                      XXXX XXXX 5678
-                    </p>
-                  </div>
-
-                </div>
-
-                <p className="text-green-500 font-bold text-sm">
-                  + ₹10,000
-                </p>
-
-              </div>
-
-              {/* Item */}
-              <div className="flex items-center justify-between border-b pb-3">
-
-                <div className="flex items-center gap-3">
-
-                  <div className="bg-slate-100 rounded-full p-3">
-                    <i className="ri-user-3-line text-lg"></i>
-                  </div>
-
-                  <div>
-                    <p className="font-medium text-sm">
-                      Sarah Johnson
-                    </p>
-
-                    <p className="text-gray-500 text-xs">
-                      XXXX XXXX 8765
-                    </p>
-                  </div>
-
-                </div>
-
-                <p className="text-red-500 font-bold text-sm">
-                  - ₹2,500
-                </p>
-
-              </div>
-
-              {/* Item */}
-              <div className="flex items-center justify-between">
-
-                <div className="flex items-center gap-3">
-
-                  <div className="bg-slate-100 rounded-full p-3">
-                    <i className="ri-user-3-line text-lg"></i>
-                  </div>
-
-                  <div>
-                    <p className="font-medium text-sm">
-                      John Doe
-                    </p>
-
-                    <p className="text-gray-500 text-xs">
-                      XXXX XXXX 4321
-                    </p>
-                  </div>
-
-                </div>
-
-                <p className="text-green-500 font-bold text-sm">
-                  + ₹7,500
-                </p>
-
-              </div>
+                })
+              }
+           
 
             </div>
           </div>

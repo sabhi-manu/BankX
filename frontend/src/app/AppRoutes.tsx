@@ -8,6 +8,7 @@ import AccountsPage from "../features/accounts/pages/AccountsPage";
 import TransferMoneyPage from "../features/TransferMoney/page/TransferMoneyPage";
 import DashboardContent from "../components/layouts/DashboardContent";
 import ProtectedRoute from "./ProtectedRoute";
+import AccountOpeningForm from "../features/accounts/components/AccountOpeningForm";
 
 
 const AppRoutes = () => {
@@ -25,6 +26,7 @@ const AppRoutes = () => {
           <Route path="/transaction" element={<TransactionsPage />} />
           <Route path="/account" element={<AccountsPage />} />
           <Route path="/transfer" element={<TransferMoneyPage />} />
+          <Route path="/account/open" element={<AccountOpeningForm />} />
         </Route>
 
 

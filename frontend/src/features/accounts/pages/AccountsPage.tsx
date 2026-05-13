@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
+
+import { useNavigate } from "react-router";
 import { useAccounts, useBalance } from "../hooks/useAccounts";
 
 const AccountsPage = () => {
-  const [open, setOpen] = useState<boolean>(false);
+ const navigate = useNavigate();
 
   const { isPending, isError, data, error } = useAccounts();
-  const {data: balanceData, isPending: isBalancePending} = useBalance(data?.account._id)
+  console.log("account data :",data)
+  const {data: balanceData, isPending: isBalancePending} = useBalance(data?.account?._id)
 
   if (isPending) {
     return (
@@ -23,18 +25,11 @@ const AccountsPage = () => {
       <div className="flex flex-col lg:flex-row lg:justify-between gap-6 px-5">
         <p className="font-bold text-2xl">My Accounts</p>
 
-        {/* <div>
-          <button
-            onClick={() => setOpen(!open)}
-            className="text-white bg-blue-500 px-5 py-1 rounded-lg"
-          >
-            + Open New Account
-          </button>
-        </div> */}
+     
         {!data?.account && (
            <div>
           <button
-            onClick={() => setOpen(!open)}
+            onClick={() => navigate("/account/open")}
             className="text-white bg-blue-500 px-5 py-1 rounded-lg"
           >
             + Open New Account
@@ -47,14 +42,14 @@ const AccountsPage = () => {
       {isError && <p className="text-center text-red-500">{error.message}</p>}
 
       {/* Empty State */}
-      {(!data || data.length === 0) && (
+      {!data?.account  &&  (
         <p className="text-center text-gray-500">
           No account found. Please create one.
         </p>
       )}
 
       {/* Account Card */}
-      {data && (
+      {data?.account && (
         <div className="flex flex-col gap-10">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 shadow-2xl px-6 py-3">
             <div className="flex items-center gap-4">
@@ -63,14 +58,14 @@ const AccountsPage = () => {
               <div>
                 <p className="font-bold">Savings Account</p>
                 {/* <p className="font-light">XXXX XXXX 1234</p> */}
-                <p className="font-light">{data?.account._id} </p>
+                <p className="font-light">{data?.account?._id} </p>
               </div>
             </div>
 
             <div>
               <p>Available Balance</p>
               {/* <p className="font-bold">$ 123345.50</p> */}
-              <p className="font-bold"> {isBalancePending ? "Loading..." : `$ ${balanceData?.balance}`   } </p>
+              <p className="font-bold"> {isBalancePending ? "0" : `$ ${balanceData?.balance}`   } </p>
             </div>
 
             <div>
@@ -82,13 +77,13 @@ const AccountsPage = () => {
             <p className="text-gray-500">Total Balance (All Accounts)</p>
 
             <h2 className="text-2xl font-bold text-gray-800 mt-2">
-             {isBalancePending ? "Loading..." : `$ ${balanceData?.balance}` }
+             {isBalancePending ? "0" : `$ ${balanceData?.balance}` }
             </h2>
           </div>
         </div>
       )}
 
-      {/* Total Balance */}
+      
     </div>
   );
 };
