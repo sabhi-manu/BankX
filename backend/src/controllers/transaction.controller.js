@@ -6,7 +6,7 @@ import emailService from "../utils/mails/emails.js"
 
 async function createTransaction(req,res) {
 
-    const {toAccount,amount,idempotenceKey} = req.body 
+    const {toAccount,amount,idempotenceKey,description="no description"} = req.body 
     console.log("Authenticated user:", req.user)
 
     if( !toAccount || !amount || !idempotenceKey){
@@ -112,7 +112,8 @@ async function createTransaction(req,res) {
         toAccount,
         amount,
         status:"PENDING",
-        idempotenceKey
+        idempotenceKey,
+        description
       }],{session}))[0];
 
       const forAccountLedger = await ledgerModel.create([{
@@ -170,7 +171,7 @@ async function createTransaction(req,res) {
 
 async function createInitialFund(req,res,next) {
 
-  const {toAccount,amount,idempotenceKey} = req.body
+  const {toAccount,amount,idempotenceKey,description="system fund transfer"} = req.body
   const systemId = req.user._id
 
   console.log("Received initial fund request:", req.body)
@@ -220,7 +221,8 @@ if (existing) {
       toAccount,
       amount,
       status:"PENDING",
-      idempotenceKey
+      idempotenceKey,
+      description
     }],{session}))[0]
 
     const debitLedger = await ledgerModel.create([{
@@ -271,8 +273,32 @@ if (existing) {
 }
 
 
+async function getTransactions(req,res) {
+
+  const userAccount = await accountModel.findOne({
+    user:req.user._id
+  })
+  if(!userAccount){
+    return res.status(400).json({
+      message:"User account not found."
+    })
+  } 
+  const transactions = await transactionModel.find({
+    $or:[
+      {fromAccount:userAccount._id},
+      {toAccount:userAccount._id}
+    ]
+  })     
+  return res.status(200).json({
+    message:"Transactions fetched successfully.",
+    transactions
+  })
+}
+
 
 export default {
   createTransaction,
-  createInitialFund
+  createInitialFund,
+  getTransactions
+
 }

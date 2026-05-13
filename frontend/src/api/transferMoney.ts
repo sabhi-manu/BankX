@@ -2,8 +2,10 @@
 import axios from "./axios"
 
 interface transferApi {
-    to:string;
-    amount:string
+   toAccount: string;
+  amount: string;
+  description:string;
+    idempotenceKey: string;
 }
 
 export async function transferMoneyApi(data:transferApi) {

@@ -14,3 +14,14 @@
     user:User;
     token:string
 }
+
+export interface TransactionResponse {
+    _id:string;
+    amount:number;
+    fromAccount:string;
+    toAccount:string;
+    status:string;
+    createdAt:string;
+    updatedAt:string;
+    description:string;
+}

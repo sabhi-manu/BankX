@@ -6,16 +6,19 @@ import { v4 as uuidv4 } from "uuid";
 const TransferMoneyPage = () => {
   const [to, setTo] = useState("");
   const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
 
   const { mutate, isPending } = useTransferMoney();
 
   const submitHandler = () => {
     if (!to || !amount) return;
 
+
     mutate({
-      to,
-      amount
-     
+      toAccount: to,
+      amount,
+      description,
+      idempotenceKey: uuidv4(),
     });
   };
 
@@ -79,6 +82,24 @@ const TransferMoneyPage = () => {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="Enter amount"
+                className="border border-gray-300 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            {/* description */}
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor="description"
+                className="font-medium text-sm text-gray-700"
+              >
+                Description
+              </label>
+
+              <input
+                type="text"
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Enter description"
                 className="border border-gray-300 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>

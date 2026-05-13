@@ -9,8 +9,10 @@ import { useAuth } from "../../../context/AuthContext";
 
 
 interface TransferData {
-  to: string;
+  toAccount: string;
   amount: string;
+  description:string;
+  idempotenceKey: string;
 }
 
 export function useTransferMoney() {

@@ -7,7 +7,7 @@ const route = express.Router()
 
 route.post("/",authMiddleware,transactionController.createTransaction)
 route.post("/system/initial-fund",systemAuthMiddleware,transactionController.createInitialFund)
-
+route.get("/",authMiddleware,transactionController.getTransactions)
 
 
 export default route 
