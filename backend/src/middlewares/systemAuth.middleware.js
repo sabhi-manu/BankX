@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken"
 import UserModel from "../models/user.model.js"
+import tokenBlackListModel from "../models/blackList.model.js"
 
 
 async function systemAuthMiddleware(req, res, next) {
@@ -10,9 +11,10 @@ async function systemAuthMiddleware(req, res, next) {
                 message: "invalid  or expired token"
             })
         }
+        console.log("Token received in system auth middleware:", token)
 
         const blacklistToken = await tokenBlackListModel.findOne({ token })
-
+        console.log("Blacklisted token:", blacklistToken)
         if (blacklistToken) {
             return res.status(401).json({
                 message: "unauthorized access . token expired"

@@ -32,6 +32,7 @@ async function getUserAccount(req,res,next) {
 async function getUserAccountBalance(req,res,next) {
 
     let {accountId} = req.params
+    console.log("account id from params :",accountId)
 
     const account = await accountModel.findOne({_id:accountId, user:req.user._id})
 
@@ -42,6 +43,7 @@ async function getUserAccountBalance(req,res,next) {
     }
 
     const balance = await account.getBalance()
+    console.log ("current balance in account :",balance)
 
    return res.status(200).json({
         accountId,

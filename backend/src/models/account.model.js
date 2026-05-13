@@ -34,13 +34,13 @@ accountSchema.methods.getBalance = async function () {
                 _id: null,
                 totalCrdit: {
                     $sum: {
-                        $cond: [{ $eq: ["$type", "CREDIT"] }, "$ammount", 0]
+                        $cond: [{ $eq: ["$type", "CREDIT"] }, "$amount", 0]
                     }
                 },
 
                 totalDebit: {
                     $sum: {
-                        $cond: [{ $eq: ["$type", "DEBIT"] }, "$ammount", 0]
+                        $cond: [{ $eq: ["$type", "DEBIT"] }, "$amount", 0]
                     }
 
                 }
@@ -56,7 +56,7 @@ accountSchema.methods.getBalance = async function () {
     ])
 
     if(balanceData.length == 0) return 0
-    return balanceData.balance
+    return balanceData[0].balance
 }
 
 const accountModel = mongoose.model("account", accountSchema)

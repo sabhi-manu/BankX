@@ -1,6 +1,9 @@
 import React from "react";
+import { useAuth } from "../../../context/AuthContext";
 
 const ProfilePage = () => {
+  const {authUser} = useAuth()
+  console.log('user details :',authUser)
   return (
     <div className="min-h-screen bg-slate-100 p-6 overflow-y-scroll">
 
@@ -33,7 +36,7 @@ const ProfilePage = () => {
               </p>
 
               <p className="font-medium text-slate-800">
-                John Doe
+              {authUser?.user.userName}
               </p>
             </div>
 
@@ -43,7 +46,7 @@ const ProfilePage = () => {
               </p>
 
               <p className="font-medium text-slate-800">
-                john.doe@example.com
+                {authUser?.user.email}
               </p>
             </div>
 
@@ -53,7 +56,7 @@ const ProfilePage = () => {
               </p>
 
               <p className="font-medium text-slate-800">
-                +91 1234567890
+                +91 {authUser?.user.phoneNumber || "Not Provided"}
               </p>
             </div>
 
@@ -72,17 +75,17 @@ const ProfilePage = () => {
                 </p>
 
                 <p className="text-sm font-medium">
-                  May 15, 2023
+                  {authUser?.user.createdAt}
                 </p>
               </div>
 
               <div className="flex items-center justify-between border-b pb-3">
                 <p className="text-sm text-gray-500">
-                  Last Login
+                  Last Update
                 </p>
 
                 <p className="text-sm font-medium">
-                  May 12, 2024 · 10:30 AM
+                  {authUser?.user.updatedAt}
                 </p>
               </div>
 

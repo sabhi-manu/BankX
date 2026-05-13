@@ -4,13 +4,16 @@ interface UserRegisterProps {
     
         userName:string,
         email:string,
-        password:string
-    
+        password:string,
+        phoneNumber:string
 }
 
 interface UserLoginProps {
         email:string,
-        password:string 
+        password:string ,
+        // phoneNumber:string,
+        // updatedAt:string,
+        // createdAt:string
 }
 
  export async function registerApi(data:UserRegisterProps) {

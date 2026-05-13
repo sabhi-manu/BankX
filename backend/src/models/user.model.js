@@ -23,7 +23,13 @@ const userSchema = new mongoose.Schema({
         type:Boolean,
         default:false,
         immutable:true,
-        select:false
+        // select:false
+    },
+    phoneNumber:{
+        type:String,
+        required:[true,"Phone number is required for creating an account."],
+        unique:[true,"Phone number already exists."],
+        trim:true
     }
 
 },{timestamps:true})

@@ -1,8 +1,14 @@
 import axios from "./axios"
 
 
- export async function transactionApi() {
-    let resp = await axios.get("/")
+interface TransactionProps {
+    idempotenceKey:string,
+    to:string,
+    amount:string
+}
+
+ export async function transactionApi(data:TransactionProps) {
+    let resp = await axios.post("/", data)
     console.log("transaction api response ==>",resp)
     return resp.data
     

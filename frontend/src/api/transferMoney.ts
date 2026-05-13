@@ -13,3 +13,11 @@ export async function transferMoneyApi(data:transferApi) {
     return resp.data
     
 }
+
+export async function systemTransferMoneyApi(data:transferApi) {
+    console.log('api system transfer money data ==>',data)
+    let resp = await axios.post("/system-transfer",data)
+    console.log('rsponse system transfer money =+>',resp)
+    return resp.data
+    
+}

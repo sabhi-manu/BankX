@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { useAccounts } from "../hooks/useAccounts";
+import React, { useEffect, useState } from "react";
+import { useAccounts, useBalance } from "../hooks/useAccounts";
 
 const AccountsPage = () => {
   const [open, setOpen] = useState<boolean>(false);
 
   const { isPending, isError, data, error } = useAccounts();
-  console.log("data", data);
+  const {data: balanceData, isPending: isBalancePending} = useBalance(data?.account._id)
 
   if (isPending) {
     return (
@@ -23,7 +23,16 @@ const AccountsPage = () => {
       <div className="flex flex-col lg:flex-row lg:justify-between gap-6 px-5">
         <p className="font-bold text-2xl">My Accounts</p>
 
-        <div>
+        {/* <div>
+          <button
+            onClick={() => setOpen(!open)}
+            className="text-white bg-blue-500 px-5 py-1 rounded-lg"
+          >
+            + Open New Account
+          </button>
+        </div> */}
+        {!data?.account && (
+           <div>
           <button
             onClick={() => setOpen(!open)}
             className="text-white bg-blue-500 px-5 py-1 rounded-lg"
@@ -31,6 +40,7 @@ const AccountsPage = () => {
             + Open New Account
           </button>
         </div>
+        )}
       </div>
 
       {/* Error */}
@@ -44,21 +54,23 @@ const AccountsPage = () => {
       )}
 
       {/* Account Card */}
-      {data?.length > 0 && (
-        <div>
+      {data && (
+        <div className="flex flex-col gap-10">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 shadow-2xl px-6 py-3">
             <div className="flex items-center gap-4">
               <i className="ri-bank-line text-3xl text-green-500"></i>
 
               <div>
                 <p className="font-bold">Savings Account</p>
-                <p className="font-light">XXXX XXXX 1234</p>
+                {/* <p className="font-light">XXXX XXXX 1234</p> */}
+                <p className="font-light">{data?.account._id} </p>
               </div>
             </div>
 
             <div>
               <p>Available Balance</p>
-              <p className="font-bold">$ 123345.50</p>
+              {/* <p className="font-bold">$ 123345.50</p> */}
+              <p className="font-bold"> {isBalancePending ? "Loading..." : `$ ${balanceData?.balance}`   } </p>
             </div>
 
             <div>
@@ -70,7 +82,7 @@ const AccountsPage = () => {
             <p className="text-gray-500">Total Balance (All Accounts)</p>
 
             <h2 className="text-2xl font-bold text-gray-800 mt-2">
-              $12,345,678
+             {isBalancePending ? "Loading..." : `$ ${balanceData?.balance}` }
             </h2>
           </div>
         </div>

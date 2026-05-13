@@ -6,19 +6,24 @@ import emailService from "../utils/mails/emails.js"
 
 async function createTransaction(req,res) {
 
-    const {fromAccount,toAccount,amount,idempotenceKey} = req.body
+    const {toAccount,amount,idempotenceKey} = req.body 
+    console.log("Authenticated user:", req.user)
 
-    if(!fromAccount || !toAccount || !amount || !idempotenceKey){
+    if( !toAccount || !amount || !idempotenceKey){
         return res.status(400).json({message:"All fields are required for creating transaction."})
     }   
+    // console.log("Received transaction request:", req.body)
 
     const fromUserAccount = await accountModel.findOne({
-        _id:fromAccount
+        user:req.user._id
     }).populate("user")
+    console.log("From account:", fromUserAccount)
 
     const toUserAccount = await accountModel.findOne({
         _id:toAccount
     }).populate("user")
+
+    // console.log("To account:", toUserAccount)
     
     if(!fromUserAccount || !toUserAccount){
         return res.status(400).json({
@@ -26,9 +31,12 @@ async function createTransaction(req,res) {
         })
     }
 
-    // check the current user == account user 
+    // console.log("From account:", fromUserAccount)
 
-    if(fromUserAccount.user.toString() !== req.user.userId.toString()){
+    // check the current user == account user 
+    // console.log("Authenticated user ID:", req.user)
+    // console.log("From account user ID:", fromUserAccount.user._id)
+    if(fromUserAccount.user._id.toString() !== req.user._id.toString()){
         return res.status(403).json({
             message:"You are not authorized to perform transaction from this account."
         })
@@ -36,7 +44,8 @@ async function createTransaction(req,res) {
 
 
     // check the account status 
-
+    // console.log("From account status:", fromUserAccount.status)
+    // console.log("To account status:", toUserAccount.status)
     if(fromUserAccount.status === "FROZEN" || toUserAccount.status === "FROZEN"){
       return res.status(400).json({
         message:"Transaction cannot be processed as one of the accounts is frozen."
@@ -54,24 +63,26 @@ async function createTransaction(req,res) {
     const isTransactionAlreadyExist = await transactionModel.findOne({
         idempotenceKey
     })
-
-    if(isTransactionAlreadyExist.status === "PENDING"){
+    // console.log('idempotencekey ==>',idempotenceKey)
+    // console.log("isTransactionAlreadyExist ==>",isTransactionAlreadyExist)
+    
+    if(isTransactionAlreadyExist?.status === "PENDING"){
        return res.status(200).json({
         message:"Transaction is already in progress."
        })
     }
-    if(isTransactionAlreadyExist.status==="FAILED"){
+    if(isTransactionAlreadyExist?.status==="FAILED"){
        return res.status(500).json({
         message:"Transaction has already failed. Retry!."
        })
     }
 
-    if(isTransactionAlreadyExist.status === "COMPLETE"){
+    if(isTransactionAlreadyExist?.status === "COMPLETE"){
       return res.status(200).json({
         message:"Transaction has already completed."
       })
     }
-    if(isTransactionAlreadyExist.status === "REVERSED"){
+    if(isTransactionAlreadyExist?.status === "REVERSED"){
       return res.status(500).json({
         message:"Transaction has already been reversed."
       })
@@ -80,9 +91,10 @@ async function createTransaction(req,res) {
     // check the balance of from account
 
       const balance = await fromUserAccount.getBalance()
+      console.log('current balance in account :',balance)
       if(balance<amount){
          return res.status(400).json({
-            message:`Insufficient balance in the from account. Current balance is ${balance}.`
+            message:`Insufficient balance in Your account. Current balance is ${balance}.`
          })
       }
 
@@ -96,7 +108,7 @@ async function createTransaction(req,res) {
 
 
       transaction = (await transactionModel.create([{
-        fromAccount,
+        fromAccount:fromUserAccount._id,
         toAccount,
         amount,
         status:"PENDING",
@@ -104,7 +116,7 @@ async function createTransaction(req,res) {
       }],{session}))[0];
 
       const forAccountLedger = await ledgerModel.create([{
-        account:fromAccount,
+        account:fromUserAccount._id,
         amount,
         type:"DEBIT",
         transaction:transaction._id
@@ -118,10 +130,12 @@ async function createTransaction(req,res) {
 
       }],{session})
 
-      await transactionModel.findByIdAndUpdate(
+    transaction = await transactionModel.findByIdAndUpdate(
        transaction._id,
         {status:"COMPLETE"},
-        {session}
+        {
+          new:true,
+          session}
       )
 
       await session.commitTransaction()
@@ -138,8 +152,8 @@ async function createTransaction(req,res) {
     session.endSession()
 
     await emailService.sendTransactionEmail({
-        userName:fromUserAccount.userName,
-        email:fromUserAccount.email,
+        userName:fromUserAccount.user.userName,
+        email:fromUserAccount.user.email,
         amount,
         fromAccount:fromUserAccount.user.userName,
         toAccount:toUserAccount.user.userName
@@ -159,6 +173,7 @@ async function createInitialFund(req,res,next) {
   const {toAccount,amount,idempotenceKey} = req.body
   const systemId = req.user._id
 
+  console.log("Received initial fund request:", req.body)
 
   // check body details
   if(!toAccount || !amount || !idempotenceKey){
@@ -174,7 +189,7 @@ async function createInitialFund(req,res,next) {
        message:"invalid account."
     })
   }
-
+  console.log("To account details:", toUserAccount)
   const existing = await transactionModel.findOne({ idempotenceKey });
 
 if (existing) {
@@ -222,10 +237,11 @@ if (existing) {
       transaction:transaction._id
     }],{session})
 
-    await transactionModel.findByIdAndUpdate(
+   transaction = await transactionModel.findByIdAndUpdate(
       transaction._id,
      { status: "COMPLETE" },
-      {session}
+      {new: true,
+        session}
     )
 
   await  session.commitTransaction()

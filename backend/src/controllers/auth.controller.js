@@ -5,7 +5,7 @@ import tokenBlackListModel from "../models/blackList.model.js"
 
 async function userRegisterController(req,res,next) {
     try {
-        const {email,password,userName} = req.body
+        const {email,password,userName,systemUser=false,phoneNumber} = req.body
 
         const isUser = await UserModel.findOne({email})
 
@@ -17,7 +17,7 @@ async function userRegisterController(req,res,next) {
         }
 
         const user = await UserModel.create({
-            email,password,userName
+            email,password,userName,systemUser,phoneNumber
         })
 
         const token = await jwt.sign({userId:user._id},process.env.JWT_SECRET)
@@ -35,7 +35,11 @@ async function userRegisterController(req,res,next) {
             user:{
                 _id:user._id,
                 email:user.email,
-                userName:user.userName
+                userName:user.userName,
+                phoneNumber:user.phoneNumber,
+                updatedAt:user.updatedAt,
+                createdAt:user.createdAt,
+                systemUser:user.systemUser
             },
             token
 
@@ -79,7 +83,11 @@ async function userLoginController(req,res,next) {
             user:{
                 _id:user._id,
                 email:user.email,
-                userName:user.userName
+                userName:user.userName,
+                phoneNumber:user.phoneNumber,
+                updatedAt:user.updatedAt,
+                createdAt:user.createdAt,
+                systemUser:user.systemUser
             },
             token
 

@@ -12,9 +12,9 @@ const ProtectedRoute = ({
 
   const { authUser } = useAuth();
 
-  // if (!authUser) {
-  //   return <Navigate to="/login" replace />;
-  // }
+  if (!authUser) {
+    return <Navigate to="/login" replace />;
+  }
 
   return children;
 };

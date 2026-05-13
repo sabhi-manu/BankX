@@ -1,8 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import { loginApi } from "../../../api/auth.api";
 import { useAuth } from "../../../context/AuthContext";
+import { useNavigate } from "react-router";
 
 export function useLogin() {
+  const navigate = useNavigate();
   const { setAuthUser } = useAuth();
 
   return useMutation({
@@ -14,6 +16,8 @@ export function useLogin() {
         user: data.user,
         token: data.token,
       });
+
+      navigate("/");
     },
     onError: (error) => {
       console.log("api fail login ==>");
