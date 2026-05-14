@@ -1,27 +1,43 @@
-import React, { useState } from "react";
-import { useTransferMoney } from "../hook/useTransferMoney";
+import React, { useEffect, useState } from "react";
+import { useSearchAccount, useTransferMoney } from "../hook/useTransferMoney";
 import { v4 as uuidv4 } from "uuid";
 import { useNavigate } from "react-router";
 import { useTransaction } from "../../transactions/hooks/useTransaction";
 import type { TransactionResponse } from "../../../types/Auth.type";
 
-
 const TransferMoneyPage = () => {
-  const [to, setTo] = useState("");
+  
+  const [toAccount, setToAccount] = useState("");
+
+  const [search, setSearch] = useState("");
+
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
-  const navigate = useNavigate()
+
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const navigate = useNavigate();
 
   const { mutate, isPending } = useTransferMoney();
-   const { data, isLoading } = useTransaction();
-   console.log( "transactions details ==>", data)
+
+  const { data } = useTransaction();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const { data: searchData } = useSearchAccount(debouncedSearch);
 
   const submitHandler = () => {
-    if (!to || !amount) return;
-
+    if (!toAccount || !amount) return;
 
     mutate({
-      toAccount: to,
+      toAccount,
       amount,
       description,
       idempotenceKey: uuidv4(),
@@ -29,9 +45,8 @@ const TransferMoneyPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 px-5 py-6 overflow-y-scroll ">
+    <div className="min-h-screen bg-slate-100 px-5 py-6 overflow-y-scroll">
 
-      {/* Header */}
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-slate-800">
           Transfer Money
@@ -42,10 +57,9 @@ const TransferMoneyPage = () => {
         </p>
       </div>
 
-      {/* Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* Left Section */}
+        {/* Left */}
         <div className="bg-white rounded-2xl shadow-lg p-6 h-fit">
 
           <h3 className="text-xl font-bold mb-5">
@@ -54,8 +68,8 @@ const TransferMoneyPage = () => {
 
           <div className="flex flex-col gap-5">
 
-            {/* To Account */}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 relative">
+
               <label
                 htmlFor="to"
                 className="font-medium text-sm text-gray-700"
@@ -66,14 +80,44 @@ const TransferMoneyPage = () => {
               <input
                 type="text"
                 id="to"
-                value={to}
-                onChange={(e) => setTo(e.target.value)}
-                placeholder="Receiver account number"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                placeholder="Search by username or email"
                 className="border border-gray-300 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
               />
+
+              {showSuggestions && search &&
+                searchData?.users?.length > 0 && (
+                  <div className="absolute top-[75px] w-full bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto z-50">
+
+                    {searchData.users.map((user: any) => (
+                      <div
+                        key={user._id}
+                        onClick={() => {
+                          setToAccount(user._id);
+                          setSearch(user.userDetails.userName);
+                          setShowSuggestions(false);
+                        }}
+                        className="px-4 py-3 hover:bg-slate-100 cursor-pointer border-b"
+                      >
+                        <p className="font-medium text-sm">
+                          {user.userDetails.userName}
+                        </p>
+
+                        <p className="text-xs text-gray-400">
+                          XXXX {user._id.slice(-4)}
+                        </p>
+                      </div>
+                    ))}
+
+                  </div>
+                )}
+
             </div>
 
-            {/* Amount */}
             <div className="flex flex-col gap-2">
               <label
                 htmlFor="amount"
@@ -91,7 +135,7 @@ const TransferMoneyPage = () => {
                 className="border border-gray-300 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            {/* description */}
+
             <div className="flex flex-col gap-2">
               <label
                 htmlFor="description"
@@ -110,7 +154,6 @@ const TransferMoneyPage = () => {
               />
             </div>
 
-            {/* Button */}
             <button
               onClick={submitHandler}
               disabled={isPending}
@@ -129,10 +172,8 @@ const TransferMoneyPage = () => {
           </div>
         </div>
 
-        {/* Right Section */}
         <div className="flex flex-col gap-5 mb-15">
 
-          {/* Recent Transactions */}
           <div className="bg-white rounded-2xl shadow-lg p-5 max-h-[320px] overflow-y-auto">
 
             <div className="flex items-center justify-between mb-4">
@@ -140,45 +181,48 @@ const TransferMoneyPage = () => {
                 Recent Transfers
               </h2>
 
-              <button onClick={()=>navigate("/transaction")} className="text-blue-500 text-sm font-medium hover:cursor-pointer">
+              <button
+                onClick={() => navigate("/transaction")}
+                className="text-blue-500 text-sm font-medium hover:cursor-pointer"
+              >
                 View All
               </button>
             </div>
 
             <div className="space-y-4">
-              {
-                data?.transactions.slice(0,3).map((item:TransactionResponse)=>{
-                  return (
-                     <div key={item._id} className="flex items-center justify-between border-b pb-3">
 
-                <div className="flex items-center gap-3">
+              {data?.transactions
+                ?.slice(0, 3)
+                .map((item: TransactionResponse) => (
+                  <div
+                    key={item._id}
+                    className="flex items-center justify-between border-b pb-3"
+                  >
 
-                  <div className="bg-slate-100 rounded-full p-3">
-                    <i className="ri-user-3-line text-lg"></i>
-                  </div>
+                    <div className="flex items-center gap-3">
 
-                  <div>
-                    <p className="font-medium text-sm">
-                      Michael Smith
+                      <div className="bg-slate-100 rounded-full p-3">
+                        <i className="ri-user-3-line text-lg"></i>
+                      </div>
+
+                      <div>
+                        <p className="font-medium text-sm">
+                          {item.description}
+                        </p>
+
+                        <p className="text-gray-500 text-xs">
+                          XXXX {item.toAccount.slice(-4)}
+                        </p>
+                      </div>
+
+                    </div>
+
+                    <p className="font-bold text-sm">
+                      ₹ {item.amount}
                     </p>
 
-                    <p className="text-gray-500 text-xs">
-                      XXXX XXXX {item.fromAccount.slice(-4)}
-                    </p>
                   </div>
-
-                </div>
-
-                <p className=" font-bold text-sm">
-                   ₹ {item.amount}
-                </p>
-
-              </div>
-                  )
-
-                })
-              }
-           
+                ))}
 
             </div>
           </div>

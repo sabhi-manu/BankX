@@ -127,8 +127,31 @@ async function userLogoutController(req,res,next) {
     
 }
 
+async function getCurrentUserController(req,res,next) {
+    const user = req.user
+    const token = req.token
+    console.log("Current user ",user)
+    console.log("Current user token ",token)
+     return res.status(200).json({
+            message:"User Login successfully.",
+            status:"success",
+            user:{
+                _id:user._id,
+                email:user.email,
+                userName:user.userName,
+                phoneNumber:user.phoneNumber,
+                updatedAt:user.updatedAt,
+                createdAt:user.createdAt,
+                systemUser:user.systemUser
+            },
+            token
+
+        })
+}
+
 export default {
     userRegisterController,
     userLoginController,
-    userLogoutController
+    userLogoutController,
+    getCurrentUserController
 }

@@ -1,6 +1,7 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import {
+  searchAccountApi,
   systemTransferMoneyApi,
   transferMoneyApi,
 } from "../../../api/transferMoney";
@@ -41,4 +42,11 @@ export function useTransferMoney() {
       );
     },
   });
+}
+
+export function useSearchAccount(query:string){
+  return useQuery({
+    queryKey:["searchAccount",query],
+    queryFn:()=>searchAccountApi(query)
+  })
 }

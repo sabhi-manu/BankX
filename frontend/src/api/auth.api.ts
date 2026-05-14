@@ -31,3 +31,16 @@ export async function loginApi(data:UserLoginProps) {
         console.log('api response ==>',resp)
         return resp.data
 }
+
+
+export async function logoutApi() {
+        let resp = await axios.post("/auth/logout")
+        console.log('api response ==>',resp)
+        return resp.data
+}
+
+export async function getCurrentUserApi() {
+        let resp = await axios.get("/auth/current-user")
+        console.log('api response ==>',resp)
+        return resp.data
+}

@@ -53,9 +53,44 @@ async function getUserAccountBalance(req,res,next) {
     
 }
 
+async function getSuggestionAccount(req,res) {
+    let query = req.query.q
+    query = query.trim().toLowerCase()
+    console.log("query from params :",query)
+    let users = await accountModel.aggregate([
+       {
+    $lookup: {
+      from: "users",
+      localField: "user",
+      foreignField: "_id",
+      as: "userDetails"
+    }
+  },
+ {
+    $unwind: "$userDetails"
+  },
+  {
+    $match: {
+      "userDetails.userName":{$regex:query,$options:"i"}
+    }
+  },
+  {
+    $project: {
+      _id:1,
+      "userDetails.userName":1
+    }
+  }
+    ])
+    res.status(200).json({
+        message:"account suggestion",
+        users
+    })
+    
+}
 
 export default {
     createAccountController,
     getUserAccount,
-    getUserAccountBalance
+    getUserAccountBalance,
+    getSuggestionAccount
 }

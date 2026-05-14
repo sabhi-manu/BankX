@@ -10,7 +10,7 @@ const route = express.Router()
 route.post("/",authMiddleware,accountController.createAccountController)
 route.get("/details",authMiddleware,accountController.getUserAccount)
 route.post("/balance/:accountId",authMiddleware,accountController.getUserAccountBalance)
-
+route.get("/search",authMiddleware,accountController.getSuggestionAccount)
 
 
 export default route

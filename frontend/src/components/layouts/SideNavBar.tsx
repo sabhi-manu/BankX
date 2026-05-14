@@ -1,5 +1,6 @@
-import { NavLink, useNavigate } from "react-router";
+import { NavLink } from "react-router";
 import bank from "../../assets/bank.svg";
+import { useLogout } from "../../features/auth/hooks/useLogout";
 
 const navItems = [
   {
@@ -30,10 +31,10 @@ const navItems = [
 ];
 
 const SideNavBar = () => {
-  const navigate = useNavigate()
+ 
+  const {mutate} = useLogout() 
   const logoutHandler = () => {
-  localStorage.removeItem("token");
-  navigate("/login");
+    mutate()
 };
   return (
     <aside className="w-72 h-screen bg-[#111827] text-white flex flex-col justify-between shadow-xl">

@@ -23,3 +23,10 @@ export async function systemTransferMoneyApi(data:transferApi) {
     return resp.data
     
 }   
+
+export async function searchAccountApi(query:string){
+  console.log("search account api query ==>", query)
+  let resp = await axios.get(`/accounts/search?q=${query}`)
+  console.log("search account api response ==>", resp)
+  return resp.data
+}
