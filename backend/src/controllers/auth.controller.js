@@ -21,7 +21,10 @@ async function userRegisterController(req,res,next) {
         })
 
         const token = await jwt.sign({userId:user._id},process.env.JWT_SECRET)
-        res.cookie("token",token)
+        res.cookie("token",token , {
+            httpOnly : true,
+             maxAge:  25 * 60 * 1000,
+        })
 
 
     await emailService.sendRegisterEmail({
@@ -75,7 +78,10 @@ async function userLoginController(req,res,next) {
         }
 
           const token = await jwt.sign({userId:user._id},process.env.JWT_SECRET)
-        res.cookie("token",token)
+        res.cookie("token",token , {
+            httpOnly : true,
+             maxAge:  25 * 60 * 1000,
+        })
 
         return res.status(200).json({
             message:"User Login successfully.",

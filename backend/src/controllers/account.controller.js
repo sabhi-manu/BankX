@@ -66,6 +66,7 @@ async function getSuggestionAccount(req,res) {
       as: "userDetails"
     }
   },
+
  {
     $unwind: "$userDetails"
   },
@@ -81,6 +82,7 @@ async function getSuggestionAccount(req,res) {
     }
   }
     ])
+    console.log('user by query :=',users)
     res.status(200).json({
         message:"account suggestion",
         users
