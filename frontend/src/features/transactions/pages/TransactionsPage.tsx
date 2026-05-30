@@ -1,4 +1,3 @@
-import React from "react";
 import { useTransaction } from "../hooks/useTransaction";
 import type { TransactionResponse } from "../../../types/Auth.type";
 

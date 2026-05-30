@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchAccount, useTransferMoney } from "../hook/useTransferMoney";
 import { v4 as uuidv4 } from "uuid";
 import { useNavigate } from "react-router";
