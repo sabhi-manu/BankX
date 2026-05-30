@@ -11,7 +11,7 @@ async function main() {
     try {
 
         await connectDataBase()
-        app.listen(PROT, () => {
+        app.listen(PORT, () => {
             console.log("server run successfully on Port :", PROT)
         })
 
