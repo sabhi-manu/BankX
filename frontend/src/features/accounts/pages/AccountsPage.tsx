@@ -65,7 +65,7 @@ const AccountsPage = () => {
             <div>
               <p>Available Balance</p>
               {/* <p className="font-bold">$ 123345.50</p> */}
-              <p className="font-bold"> {isBalancePending ? "0" : `$ ${balanceData?.balance}`   } </p>
+              <p className="font-bold"> {isBalancePending ? "0" : `₹ ${balanceData?.balance}`   } </p>
             </div>
 
             <div>
@@ -77,7 +77,7 @@ const AccountsPage = () => {
             <p className="text-gray-500">Total Balance (All Accounts)</p>
 
             <h2 className="text-2xl font-bold text-gray-800 mt-2">
-             {isBalancePending ? "0" : `$ ${balanceData?.balance}` }
+             {isBalancePending ? "0" : `₹ ${balanceData?.balance}` }
             </h2>
           </div>
         </div>
