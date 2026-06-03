@@ -9,8 +9,15 @@ interface ProtectProp {
 const ProtectedRoute = ({
   children,
 }: ProtectProp) => {
+  const { authUser, isAuthLoading } = useAuth();
 
-  const { authUser } = useAuth();
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-slate-500">
+        Checking session...
+      </div>
+    );
+  }
 
   if (!authUser) {
     return <Navigate to="/login" replace />;

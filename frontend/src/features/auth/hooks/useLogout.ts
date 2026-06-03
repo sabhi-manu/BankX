@@ -13,7 +13,6 @@ export function useLogout() {
             onSuccess:() => {
                 console.log("user logount successfully.")
                 setAuthUser(null)
-                localStorage.removeItem("token");
                 navigate("/login")
             },
             onError:(err) => {
