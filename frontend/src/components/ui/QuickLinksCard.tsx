@@ -1,5 +1,3 @@
-import React from 'react'
-
 const QuickLinksCard = () => {
   return (
     <div className='shadow-2xl px-3 py-2'>

@@ -16,9 +16,10 @@ interface TransferData {
   idempotenceKey: string;
 }
 
-export function useTransferMoney() {
+export function useTransferMoney(resetForm:()=>void) {
 
   const { authUser } = useAuth();
+  // console.log('auth details in use transfer money ..',authUser)
 
   return useMutation({
 
@@ -33,6 +34,7 @@ export function useTransferMoney() {
 
     onSuccess: (data) => {
       console.log("response transfer ==>", data);
+      resetForm()
     },
 
     onError: (error) => {

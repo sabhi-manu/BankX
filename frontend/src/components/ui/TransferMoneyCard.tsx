@@ -1,5 +1,3 @@
-import React from 'react'
-
 const TransferMoneyCard = () => {
   return (
     <div className=' shadow-2xl  px-5 flex flex-col  gap-3 '>

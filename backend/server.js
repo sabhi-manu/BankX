@@ -5,14 +5,14 @@ import app from "./src/app.js";
 import connectDataBase from "./src/configs/db.js";
 
 
-const PROT = 3000 || process.env.PORT
+const PORT = process.env.PORT || 3000;
 
 async function main() {
     try {
 
         await connectDataBase()
-        app.listen(PROT, () => {
-            console.log("server run successfully on Port :", PROT)
+        app.listen(PORT, () => {
+            console.log("server run successfully on Port :", PORT)
         })
 
 
